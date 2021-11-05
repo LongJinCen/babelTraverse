@@ -1,4 +1,5 @@
 const parser = require("@babel/parser")
+const generate = require("@babel/generator").default
 const traverse = require("@babel/traverse").default
 
 const {
@@ -20,17 +21,19 @@ traverse(ast, {
     console.log('this is a string value: ', path.node.value);
 
     // find the whole  'test1' + value + 'test2' + value + 'test3'  BinaryExpression
-    const topBinaryExpressionPath = path.findParent(path => !path.isBinaryExpression())
+    const topBinaryExpressionPath = path.findParent(path => !path.parentPath.isBinaryExpression())
 
-    // ...do something to get the finalKey
-    // this final key look like this
-    const finalKey = 'tes1{0}test2{1}test3'
+    const finalKey = 'testkey'
     const replaceNode = callExpression(
       identifier("$i18n"),
-      [stringLiteral(finalKey)]
+      [stringLiteral('testkey')]
     )
-    
+
     topBinaryExpressionPath.replaceWith(replaceNode)
+    // skip the new node traverse
     topBinaryExpressionPath.skip()
   }
 })
+
+const result = generate(ast)
+console.log(result.code);
